@@ -1,0 +1,2890 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airline IoT Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#00A7E1',     /* airline blue */
+                        secondary: '#00E1D9',   /* teal accent */
+                        accent: '#9D4EDD',      /* purple accent */
+                        critical: '#FF3A5E',    /* modern red */
+                        high: '#FF8700',        /* modern orange */
+                        medium: '#FFD600',      /* modern yellow */
+                        low: '#00E64D',         /* modern green */
+                        darkblue: '#0D1B2A',    /* deep blue background */
+                        darkgray: '#1B263B'     /* secondary dark background */
+                    },
+                    boxShadow: {
+                        'glow': '0 0 15px rgba(0, 167, 225, 0.5)',
+                        'glow-purple': '0 0 15px rgba(157, 78, 221, 0.5)',
+                        'glow-teal': '0 0 15px rgba(0, 225, 217, 0.5)'
+                    },
+                    backgroundImage: {
+                        'gradient-tech': 'linear-gradient(135deg, #0D1B2A 0%, #1B263B 100%)'
+                    }
+                }
+            }
+        }
+        
+        // Always use dark mode
+        document.documentElement.classList.add('dark');
+    </script>
+</head>
+<body class="bg-white dark:bg-darkblue text-gray-800 dark:text-gray-200 transition-colors duration-200">
+    <!-- Background image with gradient overlay -->
+    <div class="fixed inset-0 z-0 pointer-events-none opacity-15 dark:opacity-10">
+        <img src="https://pfst.cf2.poecdn.net/base/image/025aa1eda5b7183ffc89d771e1949019898370bdea06fe5487e78d7e22589777?w=1993&amp;h=1125" alt="" class="h-full w-full object-cover">
+        <div class="absolute inset-0 bg-white dark:bg-gradient-to-br dark:from-darkblue dark:to-darkgray"></div>
+    </div>
+    
+    <div class="container relative z-10 mx-auto px-4 py-6">
+        <header class="mb-6">
+            <div class="flex items-center justify-center md:justify-start mb-4">
+                <div class="p-2 inline-block">
+                        <img src="https://pfst.cf2.poecdn.net/base/image/852de078f7b73355f1a28950c768d91a3f8cf624754987b902788cd4e7572790?w=265&amp;h=133" alt="blauLabs by Softtek" class="w-full max-w-[180px] h-auto">
+                </div>
+            </div>
+            
+
+            <!-- Integration Value Proposition -->
+            <div class="mb-6 px-4 py-2 rounded-lg bg-darkgray/60 border border-primary/30 backdrop-blur-sm shadow-glow">
+                <p class="text-sm text-gray-200">
+                    <span class="font-bold text-white">blauLabs</span> - Unified airline dashboard integrating <span class="text-primary font-semibold">Aircraft Systems</span>, <span class="text-secondary font-semibold">Passenger Experience</span>, and <span class="text-accent font-semibold">Sustainability Hub</span> for complete visibility across fleet management.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-2 mt-2">
+                    <div class="bg-darkblue/40 p-2 rounded border border-primary/20">
+                        <p class="text-xs font-semibold text-primary mb-1">Data Integration</p>
+                        <p class="text-xs text-gray-300">30+ data sources unified in real-time</p>
+                    </div>
+                    <div class="bg-darkblue/40 p-2 rounded border border-secondary/20">
+                        <p class="text-xs font-semibold text-secondary mb-1">IoT Sensors</p>
+                        <p class="text-xs text-gray-300">5,200+ connected devices across fleet</p>
+                    </div>
+                    <div class="bg-darkblue/40 p-2 rounded border border-accent/20">
+                        <p class="text-xs font-semibold text-accent mb-1">AI Analytics</p>
+                        <p class="text-xs text-gray-300">Predictive insights for operations</p>
+                    </div>
+                    <div class="bg-darkblue/40 p-2 rounded border border-low/20">
+                        <p class="text-xs font-semibold text-low mb-1">Business Impact</p>
+                        <p class="text-xs text-gray-300">$4.3M annual operational savings</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
+                <nav class="flex space-x-2">
+                    <button id="tab-ops" class="tab-button px-6 py-3 text-sm font-medium rounded-t-lg dark:bg-darkgray border-b-2 border-primary dark:border-primary backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 shadow-glow">
+                        Operations Center
+                    </button>
+                    <button id="tab-exp" class="tab-button px-6 py-3 text-sm font-medium rounded-t-lg text-gray-500 dark:text-gray-400 dark:hover:text-primary backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80">
+                        Passenger Experience
+                    </button>
+                    <button id="tab-sus" class="tab-button px-6 py-3 text-sm font-medium rounded-t-lg text-gray-500 dark:text-gray-400 dark:hover:text-primary backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80">
+                        Sustainability Hub
+                    </button>
+                    <button id="tab-sol" class="tab-button px-6 py-3 text-sm font-medium rounded-t-lg text-gray-500 dark:text-gray-400 dark:hover:text-primary backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80">
+                        Solution &amp; Benefits
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Dashboard Header - Operations Center Tab -->
+            <div id="header-ops" class="tab-header flex flex-col md:flex-row justify-between items-start md:items-center">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold">Smart Airport Command Center</h1>
+                    <p class="text-gray-600 dark:text-gray-400">Real-time operations optimization &amp; predictive alerts</p>
+                </div>
+                <div class="flex items-center mt-4 md:mt-0">
+                    <div class="relative">
+                        <select id="timeRange" class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md px-4 py-2 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-primary">
+                            <option value="24h">Last 24 Hours</option>
+                            <option value="7d" selected="">Last 7 Days</option>
+                            <option value="30d">Last 30 Days</option>
+                            <option value="90d">Last Quarter</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dashboard Header - Passenger Experience Tab -->
+            <div id="header-exp" class="tab-header hidden flex flex-col md:flex-row justify-between items-start md:items-center">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold">Personalized Journey Engine</h1>
+                    <p class="text-gray-600 dark:text-gray-400">Passenger experience enhancement &amp; revenue optimization</p>
+                </div>
+                <div class="flex items-center mt-4 md:mt-0">
+                    <div class="relative">
+                        <select id="passengerFilter" class="bg-white dark:bg-darkgray border border-gray-300 dark:border-gray-700 rounded-md px-4 py-2 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-primary">
+                            <option value="all" selected="">All Passengers</option>
+                            <option value="economy">Economy Class</option>
+                            <option value="business">Business Class</option>
+                            <option value="first">First Class</option>
+                            <option value="vip">VIP Members</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dashboard Header - Sustainability Hub Tab -->
+            <div id="header-sus" class="tab-header hidden flex flex-col md:flex-row justify-between items-start md:items-center">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold">Eco-Airport Resilience Hub</h1>
+                    <p class="text-gray-600 dark:text-gray-400">Energy optimization, emissions tracking &amp; infrastructure health</p>
+                </div>
+                <div class="flex items-center mt-4 md:mt-0">
+                    <div class="relative">
+                        <select id="facilityFilter" class="bg-white dark:bg-darkgray border border-gray-300 dark:border-gray-700 rounded-md px-4 py-2 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-primary">
+                            <option value="all" selected="">All Facilities</option>
+                            <option value="terminals">Terminals</option>
+                            <option value="apron">Apron/Runways</option>
+                            <option value="logistics">Logistics Centers</option>
+                            <option value="auxiliary">Auxiliary Buildings</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dashboard Header - Solution & Benefits Tab -->
+            <div id="header-sol" class="tab-header hidden flex flex-col md:flex-row justify-between items-start md:items-center">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold">blauLabs - Solution &amp; Benefits</h1>
+                    <p class="text-gray-600 dark:text-gray-400">Comprehensive aviation transformation platform</p>
+                </div>
+                <div class="flex items-center mt-4 md:mt-0">
+                    <button class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-md text-sm font-medium">
+                        Request Demo
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Operations Center Tab Content -->
+        <div id="content-ops" class="tab-content">
+            <!-- Overview Description Section -->
+            <section class="mb-6">
+                <div class="bg-white dark:bg-darkgray/80 p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow">
+                    <p class="text-gray-600 dark:text-gray-300">
+                        BlauLabs improves airport operations by integrating real-time data, optimizing boarding and turnaround processes, ensuring efficient baggage handling, maximizing equipment use, providing gate-specific insights, maintaining timely boarding, and enhancing VIP services and satisfaction.
+                    </p>
+                </div>
+            </section>
+            
+            <!-- Data Sources and Integration Info Section -->
+            <section class="mb-6 bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700">
+                <h3 class="text-lg font-medium mb-3">Data Sources &amp; Integration</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-3">
+                        <h4 class="text-sm font-semibold text-primary mb-2 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M13 7H7v6h6V7z"></path>
+                                <path fill-rule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z" clip-rule="evenodd"></path>
+                            </svg>
+                            IoT Sensors &amp; Devices
+                        </h4>
+                        <ul class="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                            <li>• RFID Baggage Tracking (2,140 readers)</li>
+                            <li>• Gate Camera Systems (437 devices)</li>
+                            <li>• Ground Equipment GPS Trackers (856 units)</li>
+                            <li>• Bluetooth Beacons (1,248 across terminals)</li>
+                            <li>• Environmental Sensors (742 units)</li>
+                        </ul>
+                    </div>
+                    <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-3">
+                        <h4 class="text-sm font-semibold text-secondary mb-2 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z" clip-rule="evenodd"></path>
+                            </svg>
+                            Integrated Systems
+                        </h4>
+                        <ul class="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                            <li>• Airport Operation Database (AODB)</li>
+                            <li>• Departure Control Systems (DCS)</li>
+                            <li>• Resource Management System (RMS)</li>
+                            <li>• Flight Information Display System (FIDS)</li>
+                            <li>• Point of Sale (POS) Systems</li>
+                        </ul>
+                    </div>
+                    <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-3">
+                        <h4 class="text-sm font-semibold text-accent mb-2 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M10 3.5a1.5 1.5 0 013 0V4a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-.5a1.5 1.5 0 000 3h.5a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-.5a1.5 1.5 0 00-3 0v.5a1 1 0 01-1 1H6a1 1 0 01-1-1v-3a1 1 0 00-1-1h-.5a1.5 1.5 0 010-3H4a1 1 0 001-1V6a1 1 0 011-1h3a1 1 0 001-1v-.5z"></path>
+                            </svg>
+                            Customer Touchpoints
+                        </h4>
+                        <ul class="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                            <li>• AR Wayfinding Mobile App (238K installations)</li>
+                            <li>• Smart Information Kiosks (87 units)</li>
+                            <li>• Digital Signage Network (342 displays)</li>
+                            <li>• Personalized Offer System</li>
+                            <li>• Customer Service Chatbots</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-3 text-xs text-gray-500 dark:text-gray-400 px-3 py-2 bg-gray-100 dark:bg-gray-800 rounded">
+                    <span class="text-primary font-bold">blauLabs</span> Enterprise Integration Platform unifies all data sources with real-time processing and advanced analytics capabilities, enabling seamless operational integration.
+                </div>
+            </section>
+
+            <!-- KPI Summary Cards (Top 4 KPIs) -->
+            <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <!-- KPI 1: Boarding Efficiency -->
+                <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300">Boarding Efficiency</h3>
+                            <p class="text-2xl font-bold">92%</p>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-low/20 dark:text-low dark:font-semibold">
+                            +4% ↑
+                        </span>
+                    </div>
+                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">Passengers boarded on time</div>
+                    <div class="mt-2 text-xs text-primary border-t border-gray-200 dark:border-gray-700 pt-1">
+                        <span class="font-medium">Data Sources:</span> Gate cameras, boarding passes, AODB
+                    </div>
+                </div>
+
+                <!-- KPI 2: Turnaround Time -->
+                <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow-teal">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300">Turnaround Time</h3>
+                            <p class="text-2xl font-bold">42<span class="text-base font-normal"> min</span></p>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-low/20 dark:text-low dark:font-semibold">
+                            -3 min ↓
+                        </span>
+                    </div>
+                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">Average turnaround time</div>
+                    <div class="mt-2 text-xs text-secondary border-t border-gray-200 dark:border-gray-700 pt-1">
+                        <span class="font-medium">Data Sources:</span> Ground equipment GPS, AODB, time stamps
+                    </div>
+                </div>
+
+                <!-- KPI 3: Baggage Handling -->
+                <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow-purple">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300">Baggage Handling</h3>
+                            <p class="text-2xl font-bold">94.8<span class="text-base font-normal">%</span></p>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-low/20 dark:text-low dark:font-semibold">
+                            +1.2% ↑
+                        </span>
+                    </div>
+                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">Bags delivered on time</div>
+                    <div class="mt-2 text-xs text-accent border-t border-gray-200 dark:border-gray-700 pt-1">
+                        <span class="font-medium">Data Sources:</span> RFID tracking, BHS sensors, reconciliation
+                    </div>
+                </div>
+
+                <!-- KPI 4: Ground Equipment Utilization -->
+                <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300">Equipment Utilization</h3>
+                            <p class="text-2xl font-bold">76%</p>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-medium/20 dark:text-medium dark:font-semibold">
+                            +2% ↑
+                        </span>
+                    </div>
+                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">Ground equipment efficiency</div>
+                    <div class="mt-2 text-xs text-primary border-t border-gray-200 dark:border-gray-700 pt-1">
+                        <span class="font-medium">Data Sources:</span> GPS trackers, RMS, equipment telematics
+                    </div>
+                </div>
+            </section>
+
+            <!-- Main Dashboard Content -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Left Column (2/3 width on large screens) -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Boarding Trends -->
+                    <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700">
+                        <h3 class="text-lg font-medium mb-4">Boarding Trends by Gate</h3>
+                        <div class="h-64">
+                            <canvas id="boardingTrendChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- AR Wayfinding Stats (now full-width instead of grid) -->
+                    <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow-purple">
+                        <h3 class="text-lg font-medium mb-2">AR Wayfinding Metrics</h3>
+                        <div class="mb-3 text-xs text-gray-500 dark:text-gray-400 px-2 py-1.5 bg-gray-100 dark:bg-gray-800 rounded">
+                            <span class="font-medium text-accent">Data Sources:</span> Mobile app interactions, Bluetooth beacons (1,248), Indoor positioning system, Gate sensors
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-4">
+                                <!-- Passenger Satisfaction -->
+                                <div>
+                                    <div class="flex justify-between items-center mb-2">
+                                        <div class="text-sm font-medium">Passenger Satisfaction</div>
+                                        <div class="flex space-x-1">
+                                            <span class="text-xl text-yellow-500">😃</span>
+                                            <span class="text-sm">87%</span>
+                                        </div>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                                        <div class="bg-primary h-2.5 rounded-full" style="width: 87%"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Missed Flight Reduction -->
+                                <div>
+                                    <div class="flex justify-between items-center mb-2">
+                                        <div class="text-sm font-medium">Missed Flight Reduction</div>
+                                        <div class="text-sm text-low">38%</div>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                                        <div class="bg-low h-2.5 rounded-full" style="width: 38%"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Connection Issues -->
+                                <div>
+                                    <div class="flex justify-between items-center mb-2">
+                                        <div class="text-sm font-medium">Connection Issues</div>
+                                        <div class="text-sm text-medium">12%</div>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                                        <div class="bg-medium h-2.5 rounded-full" style="width: 12%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <!-- Navigation Time -->
+                                <div>
+                                    <div class="flex justify-between items-center mb-2">
+                                        <div class="text-sm font-medium">Navigation Time</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">11.3 min</div>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                                        <div class="bg-accent h-2.5 rounded-full" style="width: 37%"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Path Efficiency -->
+                                <div>
+                                    <div class="flex justify-between items-center mb-2">
+                                        <div class="text-sm font-medium">Path Efficiency</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">83%</div>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                                        <div class="bg-secondary h-2.5 rounded-full" style="width: 83%"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- New metric: Real-time Gate Changes -->
+                                <div>
+                                    <div class="flex justify-between items-center mb-2">
+                                        <div class="text-sm font-medium">Gate Change Updates</div>
+                                        <div class="text-sm text-low">98%</div>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                                        <div class="bg-low h-2.5 rounded-full" style="width: 98%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3 px-2 text-xs text-accent border-t border-gray-200 dark:border-gray-700 pt-2">
+                            <span class="font-medium">Business Impact:</span> 38% reduction in missed connections, $1.2M annual customer service savings
+                        </div>
+                    </div>
+
+                    <!-- Turnaround Performance Metrics -->
+                    <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-medium">Turnaround Performance</h3>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">Target: <span class="font-medium">38 minutes</span></div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                <thead>
+                                    <tr>
+                                        <th class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Aircraft Type</th>
+                                        <th class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Avg. Time</th>
+                                        <th class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Deboarding</th>
+                                        <th class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cleaning</th>
+                                        <th class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Boarding</th>
+                                        <th class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Baggage</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                    <tr>
+                                        <td class="px-4 py-3 whitespace-nowrap">Boeing 737</td>
+                                        <td class="px-4 py-3 whitespace-nowrap font-medium">39 min</td>
+                                        <td class="px-4 py-3 whitespace-nowrap">8 min</td>
+                                        <td class="px-4 py-3 whitespace-nowrap">11 min</td>
+                                        <td class="px-4 py-3 whitespace-nowrap">12 min</td>
+                                        <td class="px-4 py-3 whitespace-nowrap">8 min</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-3 whitespace-nowrap">Airbus A320</td>
+                                        <td class="px-4 py-3 whitespace-nowrap font-medium">41 min</td>
+                                        <td class="px-4 py-3 whitespace-nowrap">9 min</td>
+                                        <td class="px-4 py-3 whitespace-nowrap">12 min</td>
+                                        <td class="px-4 py-3 whitespace-nowrap">12 min</td>
+                                        <td class="px-4 py-3 whitespace-nowrap">8 min</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-3 whitespace-nowrap">Boeing 787</td>
+                                        <td class="px-4 py-3 whitespace-nowrap font-medium">52 min</td>
+                                        <td class="px-4 py-3 whitespace-nowrap">12 min</td>
+                                        <td class="px-4 py-3 whitespace-nowrap">15 min</td>
+                                        <td class="px-4 py-3 whitespace-nowrap">15 min</td>
+                                        <td class="px-4 py-3 whitespace-nowrap">10 min</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-3 whitespace-nowrap">Airbus A350</td>
+                                        <td class="px-4 py-3 whitespace-nowrap font-medium">48 min</td>
+                                        <td class="px-4 py-3 whitespace-nowrap">11 min</td>
+                                        <td class="px-4 py-3 whitespace-nowrap">14 min</td>
+                                        <td class="px-4 py-3 whitespace-nowrap">14 min</td>
+                                        <td class="px-4 py-3 whitespace-nowrap">9 min</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Dynamic Ads KPIs -->
+                    <div class="mt-6 bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow-purple">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-medium">Dynamic Ads Performance</h3>
+                            <div class="flex gap-2">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">Gate Displays</span>
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-secondary/10 text-secondary">Mobile App</span>
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-accent/10 text-accent">Digital Signage</span>
+                            </div>
+                        </div>
+                        <div class="space-y-5">
+                            <!-- Engagement Rate -->
+                            <div class="flex items-center px-2">
+                                <div class="w-32 flex-shrink-0">
+                                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Engagement Rate</span>
+                                </div>
+                                <div class="flex-grow ml-4 space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-grow h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                            <div class="h-full bg-primary rounded-full" style="width: 42%"></div>
+                                        </div>
+                                        <span class="text-xs text-gray-600 dark:text-gray-400 w-16 text-right">42%</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-grow h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                            <div class="h-full bg-secondary rounded-full" style="width: 58%"></div>
+                                        </div>
+                                        <span class="text-xs text-gray-600 dark:text-gray-400 w-16 text-right">58%</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-grow h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                            <div class="h-full bg-accent rounded-full" style="width: 35%"></div>
+                                        </div>
+                                        <span class="text-xs text-gray-600 dark:text-gray-400 w-16 text-right">35%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Click Rate -->
+                            <div class="flex items-center px-2">
+                                <div class="w-32 flex-shrink-0">
+                                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Click Rate</span>
+                                </div>
+                                <div class="flex-grow ml-4 space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-grow h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                            <div class="h-full bg-primary rounded-full" style="width: 12%"></div>
+                                        </div>
+                                        <span class="text-xs text-gray-600 dark:text-gray-400 w-16 text-right">12%</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-grow h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                            <div class="h-full bg-secondary rounded-full" style="width: 24%"></div>
+                                        </div>
+                                        <span class="text-xs text-gray-600 dark:text-gray-400 w-16 text-right">24%</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-grow h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                            <div class="h-full bg-accent rounded-full" style="width: 9%"></div>
+                                        </div>
+                                        <span class="text-xs text-gray-600 dark:text-gray-400 w-16 text-right">9%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Conversion Rate -->
+                            <div class="flex items-center px-2">
+                                <div class="w-32 flex-shrink-0">
+                                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Conversion Rate</span>
+                                </div>
+                                <div class="flex-grow ml-4 space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-grow h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                            <div class="h-full bg-primary rounded-full" style="width: 3.5%"></div>
+                                        </div>
+                                        <span class="text-xs text-gray-600 dark:text-gray-400 w-16 text-right">3.5%</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-grow h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                            <div class="h-full bg-secondary rounded-full" style="width: 5.2%"></div>
+                                        </div>
+                                        <span class="text-xs text-gray-600 dark:text-gray-400 w-16 text-right">5.2%</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-grow h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                            <div class="h-full bg-accent rounded-full" style="width: 2.8%"></div>
+                                        </div>
+                                        <span class="text-xs text-gray-600 dark:text-gray-400 w-16 text-right">2.8%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex mt-4 justify-between items-center px-2">
+                            <div class="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-md">
+                                <p class="text-xs text-gray-600 dark:text-gray-400">Ad ROI: <span class="text-low font-medium">3.2x</span> average return</p>
+                            </div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                                <svg class="w-4 h-4 mr-1 text-primary" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                </svg>
+                                Last 7 days performance
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column (1/3 width on large screens) -->
+                <div class="space-y-6">
+                    <!-- Gate Boarding Status -->
+                    <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow-purple">
+                        <h3 class="text-lg font-medium mb-4">Gate Boarding Status</h3>
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="text-2xl font-bold">78<span class="text-base font-normal">%</span></div>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-medium/20 dark:text-medium dark:font-semibold">
+                                +5% ↑
+                            </span>
+                        </div>
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                            <div class="bg-gradient-to-r from-medium to-high h-2.5 rounded-full" style="width: 78%"></div>
+                        </div>
+                        <div class="mt-4 text-sm text-gray-500 dark:text-gray-400">On-time boarding rate</div>
+                    </div>
+
+                    <!-- VIP Concierge KPIs -->
+                    <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow">
+                        <h3 class="text-lg font-medium mb-2">VIP Concierge Service</h3>
+                        <div class="mb-3 text-xs text-gray-500 dark:text-gray-400 px-2 py-1.5 bg-gray-100 dark:bg-gray-800 rounded">
+                            <span class="font-medium text-primary">Data Sources:</span> Biometric IDs, Mobile app, CRM system, VIP lounge access points, Staff tablets
+                        </div>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="text-sm font-medium">VIP Retention Rate</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">92%</div>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                                    <div class="bg-primary h-2.5 rounded-full" style="width: 92%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="text-sm font-medium">VIP Satisfaction</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">95%</div>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                                    <div class="bg-secondary h-2.5 rounded-full" style="width: 95%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="text-sm font-medium">Request Response Time</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">3.2 min</div>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                                    <div class="bg-low h-2.5 rounded-full" style="width: 89%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="text-sm font-medium">Premium Service Uptake</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">68%</div>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                                    <div class="bg-accent h-2.5 rounded-full" style="width: 68%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3 px-2 text-xs border-t border-gray-200 dark:border-gray-700 pt-2 text-accent">
+                            <span class="font-medium">Business Impact:</span> $3.8M annual premium revenue, 28% higher spend vs regular passengers
+                        </div>
+                    </div>
+
+                    <!-- Baggage Handling Stats -->
+                    <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow-teal">
+                        <h3 class="text-lg font-medium mb-4">Baggage Delivery Time</h3>
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="text-sm text-gray-500 dark:text-gray-400">Average Delivery Time: <span class="font-medium text-secondary">18.1 min</span></div>
+                            <span class="text-xs text-low font-medium">-2.3 min from last quarter</span>
+                        </div>
+                        <div class="h-64">
+                            <canvas id="baggageChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Top Performing Gates -->
+                    <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow">
+                        <h3 class="text-lg font-medium mb-4">Top Performing Gates</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-2 rounded-lg transition-all duration-200 hover:bg-gray-50 dark:hover:bg-darkblue/50">
+                                <div>
+                                    <div class="font-medium">Gate A12</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">Terminal 1 (Score: 96)</div>
+                                </div>
+                                <div class="flex gap-1">
+                                    <span class="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-low rounded-full">On</span>
+                                    <span class="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-primary rounded-full">98%</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between p-2 rounded-lg transition-all duration-200 hover:bg-gray-50 dark:hover:bg-darkblue/50">
+                                <div>
+                                    <div class="font-medium">Gate B04</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">Terminal 2 (Score: 94)</div>
+                                </div>
+                                <div class="flex gap-1">
+                                    <span class="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-low rounded-full">On</span>
+                                    <span class="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-primary rounded-full">96%</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between p-2 rounded-lg transition-all duration-200 hover:bg-gray-50 dark:hover:bg-darkblue/50">
+                                <div>
+                                    <div class="font-medium">Gate C23</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">Terminal 3 (Score: 92)</div>
+                                </div>
+                                <div class="flex gap-1">
+                                    <span class="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-low rounded-full">On</span>
+                                    <span class="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-primary rounded-full">95%</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between p-2 rounded-lg transition-all duration-200 hover:bg-gray-50 dark:hover:bg-darkblue/50">
+                                <div>
+                                    <div class="font-medium">Gate D07</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">Terminal 1 (Score: 90)</div>
+                                </div>
+                                <div class="flex gap-1">
+                                    <span class="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-medium rounded-full">Dly</span>
+                                    <span class="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-primary rounded-full">89%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ground Equipment Tracking -->
+                    <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow-purple">
+                        <h3 class="text-lg font-medium mb-4">Ground Equipment Status</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <div class="w-1 h-6 bg-low rounded-full mr-3"></div>
+                                    <span>Baggage Tractors</span>
+                                </div>
+                                <span class="text-sm font-medium">82% Utilization</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <div class="w-1 h-6 bg-medium rounded-full mr-3"></div>
+                                    <span>Passenger Buses</span>
+                                </div>
+                                <span class="text-sm font-medium">73% Utilization</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <div class="w-1 h-6 bg-high rounded-full mr-3"></div>
+                                    <span>Catering Trucks</span>
+                                </div>
+                                <span class="text-sm font-medium">68% Utilization</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <div class="w-1 h-6 bg-low rounded-full mr-3"></div>
+                                    <span>Fuel Trucks</span>
+                                </div>
+                                <span class="text-sm font-medium">80% Utilization</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <div class="w-1 h-6 bg-critical rounded-full mr-3"></div>
+                                    <span>Pushback Tugs</span>
+                                </div>
+                                <span class="text-sm font-medium">91% Utilization</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional KPIs Section -->
+            <section class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- KPI: Chatbot Resolution Rate -->
+                <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow">
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300">Chatbot Resolution Rate</h3>
+                    <p class="text-2xl font-bold">78<span class="text-base font-normal">%</span></p>
+                    <div class="mt-2 flex items-center text-sm">
+                        <span class="text-low flex items-center font-medium">
+                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 12.586V5a1 1 0 012 0v7.586l2.293-2.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            +5% increase
+                        </span>
+                        <span class="mx-2 text-gray-500 dark:text-gray-400">from previous period</span>
+                    </div>
+                </div>
+
+                <!-- KPI: Non-Aero Revenue -->
+                <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow-teal">
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300">Non-Aero Revenue</h3>
+                    <p class="text-2xl font-bold">32<span class="text-base font-normal">%</span></p>
+                    <div class="mt-2 flex items-center text-sm">
+                        <span class="text-low flex items-center font-medium">
+                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 12.586V5a1 1 0 012 0v7.586l2.293-2.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            +3% increase
+                        </span>
+                        <span class="mx-2 text-gray-500 dark:text-gray-400">from previous period</span>
+                    </div>
+                </div>
+
+                <!-- KPI: Dwell Time Conversion -->
+                <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow-purple">
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300">Dwell Time Conversion</h3>
+                    <p class="text-2xl font-bold">24<span class="text-base font-normal">%</span></p>
+                    <div class="mt-2 flex items-center text-sm">
+                        <span class="text-medium flex items-center font-medium">
+                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 9a1 1 0 100-2 1 1 0 000 2zm1 2a1 1 0 11-2 0 1 1 0 012 0zm3-2a1 1 0 100-2 1 1 0 000 2zm1 2a1 1 0 11-2 0 1 1 0 012 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            No change
+                        </span>
+                        <span class="mx-2 text-gray-500 dark:text-gray-400">from previous period</span>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Benefits Overview Section -->
+            <section class="mt-6 mb-6">
+                <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow">
+                    <h3 class="text-lg font-medium mb-3 flex items-center">
+                        <span class="text-primary font-bold mr-2">blauLabs</span> 
+                        <span>Operational Benefits &amp; Improvements</span>
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Operational Efficiency -->
+                        <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-3">
+                            <h4 class="text-sm font-semibold text-primary mb-2 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path>
+                                </svg>
+                                Operational Efficiency
+                            </h4>
+                            <ul class="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                                <li>• <span class="text-low font-medium">↓ 11%</span> reduction in aircraft turnaround time</li>
+                                <li>• <span class="text-low font-medium">↑ 18%</span> increase in ground equipment utilization</li>
+                                <li>• <span class="text-low font-medium">↓ 24%</span> decrease in operational delays</li>
+                                <li>• <span class="text-low font-medium">$3.2M</span> annual savings in operational costs</li>
+                                <li>• <span class="text-low font-medium">↑ 8%</span> increase in gate throughput</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Passenger Experience -->
+                        <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-3">
+                            <h4 class="text-sm font-semibold text-secondary mb-2 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd"></path>
+                                </svg>
+                                Passenger Experience
+                            </h4>
+                            <ul class="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                                <li>• <span class="text-secondary font-medium">↑ 87%</span> passenger satisfaction with wayfinding</li>
+                                <li>• <span class="text-secondary font-medium">↓ 38%</span> reduction in missed connections</li>
+                                <li>• <span class="text-secondary font-medium">↑ 32%</span> increase in non-aeronautical revenue</li>
+                                <li>• <span class="text-secondary font-medium">↑ 24%</span> conversion rate from dwell time</li>
+                                <li>• <span class="text-secondary font-medium">↓ 41%</span> reduction in customer complaints</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Sustainability Hub -->
+                        <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-3">
+                            <h4 class="text-sm font-semibold text-accent mb-2 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-2 0c0 .993-.241 1.929-.668 2.754l-1.524-1.525a3.997 3.997 0 00.078-2.183l1.562-1.562C15.802 8.249 16 9.1 16 10zm-5.165 3.913l1.58 1.58A5.98 5.98 0 0110 16a5.976 5.976 0 01-2.516-.552l1.562-1.562a4.006 4.006 0 001.789.027zm-4.677-2.796a4.002 4.002 0 01-.041-2.08l-.08.08-1.53-1.533A5.98 5.98 0 004 10c0 .954.223 1.856.619 2.657l1.54-1.54zm1.088-6.45A5.974 5.974 0 0110 4c.954 0 1.856.223 2.657.619l-1.54 1.54a4.002 4.002 0 00-2.346.033L7.246 4.668zM12 10a2 2 0 11-4 0 2 2 0 014 0z" clip-rule="evenodd"></path>
+                                </svg>
+                                Sustainability &amp; Safety
+                            </h4>
+                            <ul class="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                                <li>• <span class="text-accent font-medium">↓ 6.5%</span> reduction in fuel consumption</li>
+                                <li>• <span class="text-accent font-medium">↓ 8.2%</span> decrease in CO2 emissions</li>
+                                <li>• <span class="text-accent font-medium">↓ 22%</span> reduction in ground incidents</li>
+                                <li>• <span class="text-accent font-medium">↑ 99.2%</span> technical dispatch reliability</li>
+                                <li>• <span class="text-accent font-medium">↓ 14%</span> reduction in maintenance costs</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 px-3 py-2 bg-gray-100 dark:bg-gray-800 rounded flex items-center">
+                        <div class="flex-shrink-0 p-1 bg-primary/20 rounded mr-3">
+                            <svg class="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z"></path>
+                            </svg>
+                        </div>
+                        <p class="text-xs text-gray-600 dark:text-gray-400">
+                            <span class="font-bold text-primary">Key Integration Value:</span> <span class="font-semibold">blauLabs</span> combines data from multiple sources to provide end-to-end visibility, enabling proactive decision making and creating operational synergies that single-point solutions cannot achieve.
+                        </p>
+                    </div>
+                </div>
+            </section>
+            
+
+
+            <!-- Footer with copyright -->
+            <footer class="mt-10 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="text-center text-xs text-gray-500 dark:text-gray-400">
+                    Softtek DIEGO All Rights Reserved - Designed by Roberto Cisneros © Valores Corporativos Softtek S.A. de C.V. 2025-2026 - Confidential
+                </div>
+            </footer>
+        </div>
+    
+        <!-- Passenger Experience Tab Content -->
+        <div id="content-exp" class="tab-content hidden">
+            <!-- Overview Description Section -->
+            <section class="mb-6">
+                <div class="bg-white dark:bg-darkgray/80 p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow-teal">
+                    <p class="text-gray-600 dark:text-gray-300">
+                        BlauLabs enhances passenger experience by providing personalized journey assistance, real-time wayfinding with AR technology, targeted retail offers based on passenger profiles, efficient connection management, intelligent dwell time optimization, mobile app engagement, and enhanced VIP services for premium passengers.
+                    </p>
+                </div>
+            </section>
+            
+            <!-- Passenger Experience KPI Cards -->
+            <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <!-- Passenger Satisfaction -->
+                <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300">Passenger Satisfaction</h3>
+                            <p class="text-2xl font-bold">87<span class="text-base font-normal">%</span></p>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-low/20 dark:text-low dark:font-semibold">
+                            +3.2% ↑
+                        </span>
+                    </div>
+                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">Overall experience rating</div>
+                </div>
+
+                <!-- App Engagement -->
+                <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow-teal">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300">App Engagement</h3>
+                            <p class="text-2xl font-bold">82<span class="text-base font-normal">%</span></p>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-low/20 dark:text-low dark:font-semibold">
+                            +5.3% ↑
+                        </span>
+                    </div>
+                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">Active mobile app usage</div>
+                </div>
+
+                <!-- Conversion Rate -->
+                <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow-purple">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300">Conversion Rate</h3>
+                            <p class="text-2xl font-bold">28<span class="text-base font-normal">%</span></p>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-low/20 dark:text-low dark:font-semibold">
+                            +1.8% ↑
+                        </span>
+                    </div>
+                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">Retail offer conversion</div>
+                </div>
+
+                <!-- Dwell Time Value -->
+                <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300">Dwell Time Value</h3>
+                            <p class="text-2xl font-bold">$24<span class="text-base font-normal">/hr</span></p>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-low/20 dark:text-low dark:font-semibold">
+                            +3.5% ↑
+                        </span>
+                    </div>
+                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">Revenue per passenger hour</div>
+                </div>
+            </section>
+
+            <!-- Path Efficiency Heat Map -->
+            <section class="mb-6">
+                <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow">
+                    <h3 class="text-lg font-medium mb-2">Passenger Path Efficiency Heat Map</h3>
+                    <div class="mb-4 px-4 py-3 bg-darkgray/40 border border-gray-700 rounded-lg text-sm text-gray-300">
+                        <p class="mb-2">This heat map visualizes passenger movement patterns across the terminal, identifying congestion points and inefficient paths.</p>
+                        <div class="flex flex-wrap gap-x-6 gap-y-1 mt-2">
+                            <div class="flex items-center">
+                                <span class="w-2 h-2 rounded-full bg-low mr-2"></span>
+                                <span class="text-xs">Efficient paths (&gt;80% efficiency)</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-2 h-2 rounded-full bg-medium mr-2"></span>
+                                <span class="text-xs">Moderate efficiency (50-80%)</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-2 h-2 rounded-full bg-high mr-2"></span>
+                                <span class="text-xs">Inefficient paths (&lt;50% efficiency)</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="w-2 h-2 rounded-full bg-critical mr-2"></span>
+                                <span class="text-xs">Congestion points requiring attention</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- This would be an actual heat map in a real implementation -->
+                    <div class="relative h-80 bg-gray-800 rounded-lg overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-br from-transparent to-gray-900 z-10"></div>
+                        <!-- Airport terminal layout mockup -->
+                        <svg class="w-full h-full" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Terminal outline -->
+                            <rect x="50" y="50" width="700" height="300" fill="none" stroke="#555" stroke-width="2"></rect>
+                            
+                            <!-- Gates -->
+                            <g fill="#333" stroke="#777" stroke-width="1">
+                                <rect x="50" y="50" width="50" height="30"></rect>
+                                <rect x="50" y="100" width="50" height="30"></rect>
+                                <rect x="50" y="150" width="50" height="30"></rect>
+                                <rect x="50" y="200" width="50" height="30"></rect>
+                                <rect x="50" y="250" width="50" height="30"></rect>
+                                <rect x="50" y="300" width="50" height="30"></rect>
+                                
+                                <rect x="700" y="50" width="50" height="30"></rect>
+                                <rect x="700" y="100" width="50" height="30"></rect>
+                                <rect x="700" y="150" width="50" height="30"></rect>
+                                <rect x="700" y="200" width="50" height="30"></rect>
+                                <rect x="700" y="250" width="50" height="30"></rect>
+                                <rect x="700" y="300" width="50" height="30"></rect>
+                            </g>
+                            
+                            <!-- Heat overlay - would be generated dynamically in real implementation -->
+                            <circle cx="400" cy="150" r="80" fill="rgba(255, 58, 94, 0.3)"></circle> <!-- Critical congestion point -->
+                            <circle cx="200" cy="250" r="60" fill="rgba(255, 135, 0, 0.3)"></circle> <!-- High inefficiency area -->
+                            <circle cx="600" cy="100" r="70" fill="rgba(255, 214, 0, 0.2)"></circle> <!-- Medium inefficiency area -->
+                            <path d="M150,100 C250,120 350,180 450,220 S650,250 700,280" stroke="rgba(0, 230, 77, 0.5)" stroke-width="15" fill="none" stroke-linecap="round"></path> <!-- Efficient path -->
+                            
+                            <!-- Key areas -->
+                            <rect x="350" y="150" width="100" height="100" fill="#334" stroke="#777" stroke-width="1"></rect>
+                            <text x="400" y="200" text-anchor="middle" fill="#999" font-size="12">Security</text>
+                            
+                            <rect x="250" y="50" width="300" height="50" fill="#334" stroke="#777" stroke-width="1"></rect>
+                            <text x="400" y="80" text-anchor="middle" fill="#999" font-size="12">Check-in</text>
+                            
+                            <rect x="250" y="300" width="300" height="50" fill="#334" stroke="#777" stroke-width="1"></rect>
+                            <text x="400" y="330" text-anchor="middle" fill="#999" font-size="12">Baggage Claim</text>
+                        </svg>
+                        
+                        <!-- Legend overlay -->
+                        <div class="absolute bottom-3 right-3 bg-gray-900/80 p-2 rounded text-white text-xs z-20">
+                            <div class="flex items-center mb-1">
+                                <div class="w-3 h-3 bg-low rounded-full mr-2"></div>
+                                <span>Optimal Flow</span>
+                            </div>
+                            <div class="flex items-center mb-1">
+                                <div class="w-3 h-3 bg-critical rounded-full mr-2"></div>
+                                <span>Congestion</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Passenger Experience Content -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Left Column (2/3 width on large screens) -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- AR Wayfinding Stats -->
+                    <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow-purple">
+                        <h3 class="text-lg font-medium mb-2">AR Wayfinding Metrics</h3>
+                        <div class="mb-3 text-xs text-gray-500 dark:text-gray-400 px-2 py-1.5 bg-gray-100 dark:bg-gray-800 rounded">
+                            <span class="font-medium text-accent">Data Sources:</span> Mobile app interactions, Bluetooth beacons (1,248), Indoor positioning system, Gate sensors
+                        </div>
+                        <div class="space-y-4">
+                            <!-- Passenger Satisfaction -->
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="text-sm font-medium">Passenger Satisfaction</div>
+                                    <div class="flex space-x-1">
+                                        <span class="text-xl text-yellow-500">😃</span>
+                                        <span class="text-sm">87%</span>
+                                    </div>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                                    <div class="bg-primary h-2.5 rounded-full" style="width: 87%"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Missed Flight Reduction -->
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="text-sm font-medium">Missed Flight Reduction</div>
+                                    <div class="text-sm text-low">38%</div>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                                    <div class="bg-low h-2.5 rounded-full" style="width: 38%"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Connection Issues -->
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="text-sm font-medium">Connection Issues</div>
+                                    <div class="text-sm text-medium">12%</div>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                                    <div class="bg-medium h-2.5 rounded-full" style="width: 12%"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Navigation Time -->
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="text-sm font-medium">Navigation Time</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">11.3 min</div>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                                    <div class="bg-accent h-2.5 rounded-full" style="width: 37%"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Path Efficiency -->
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="text-sm font-medium">Path Efficiency</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">83%</div>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                                    <div class="bg-secondary h-2.5 rounded-full" style="width: 83%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3 px-2 text-xs text-accent border-t border-gray-200 dark:border-gray-700 pt-2">
+                            <span class="font-medium">Business Impact:</span> 38% reduction in missed connections, $1.2M annual customer service savings
+                        </div>
+                    </div>
+
+                    <!-- Retail KPIs - Copied from Operations Center -->
+                    <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow-teal">
+                        <h3 class="text-lg font-medium mb-2">Retail Offer Metrics</h3>
+                        <div class="mb-3 text-xs text-gray-500 dark:text-gray-400 px-2 py-1.5 bg-gray-100 dark:bg-gray-800 rounded">
+                            <span class="font-medium text-secondary">Data Sources:</span> POS systems, Mobile app, Passenger profiles, Location beacons, Digital signage
+                        </div>
+                        <div class="h-64">
+                            <canvas id="retailChartExp"></canvas>
+                        </div>
+                        <div class="mt-4 grid grid-cols-2 gap-4">
+                            <div class="p-2 bg-gray-100 dark:bg-gray-800 rounded">
+                                <div class="text-sm font-medium">Conversion Rate</div>
+                                <div class="text-xl font-bold text-primary">28%</div>
+                            </div>
+                            <div class="p-2 bg-gray-100 dark:bg-gray-800 rounded">
+                                <div class="text-sm font-medium">Avg. Transaction</div>
+                                <div class="text-xl font-bold text-secondary">$42.50</div>
+                            </div>
+                        </div>
+                        <div class="mt-3 px-2 text-xs text-secondary border-t border-gray-200 dark:border-gray-700 pt-2">
+                            <span class="font-medium">Business Impact:</span> 32% of total airport revenue, $6.8M increase YoY from personalized offers
+                        </div>
+                    </div>
+                    
+                    <!-- Dynamic Ads KPIs -->
+                    <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow-purple">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-medium">Dynamic Ads Performance</h3>
+                            <div class="flex gap-2">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">Gate Displays</span>
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-secondary/10 text-secondary">Mobile App</span>
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-accent/10 text-accent">Digital Signage</span>
+                            </div>
+                        </div>
+                        <div class="space-y-5">
+                            <!-- Engagement Rate -->
+                            <div class="flex items-center px-2">
+                                <div class="w-32 flex-shrink-0">
+                                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Engagement Rate</span>
+                                </div>
+                                <div class="flex-grow ml-4 space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-grow h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                            <div class="h-full bg-primary rounded-full" style="width: 42%"></div>
+                                        </div>
+                                        <span class="text-xs text-gray-600 dark:text-gray-400 w-16 text-right">42%</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-grow h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                            <div class="h-full bg-secondary rounded-full" style="width: 58%"></div>
+                                        </div>
+                                        <span class="text-xs text-gray-600 dark:text-gray-400 w-16 text-right">58%</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-grow h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                            <div class="h-full bg-accent rounded-full" style="width: 35%"></div>
+                                        </div>
+                                        <span class="text-xs text-gray-600 dark:text-gray-400 w-16 text-right">35%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Click Rate -->
+                            <div class="flex items-center px-2">
+                                <div class="w-32 flex-shrink-0">
+                                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Click Rate</span>
+                                </div>
+                                <div class="flex-grow ml-4 space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-grow h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                            <div class="h-full bg-primary rounded-full" style="width: 12%"></div>
+                                        </div>
+                                        <span class="text-xs text-gray-600 dark:text-gray-400 w-16 text-right">12%</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-grow h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                            <div class="h-full bg-secondary rounded-full" style="width: 24%"></div>
+                                        </div>
+                                        <span class="text-xs text-gray-600 dark:text-gray-400 w-16 text-right">24%</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-grow h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                            <div class="h-full bg-accent rounded-full" style="width: 9%"></div>
+                                        </div>
+                                        <span class="text-xs text-gray-600 dark:text-gray-400 w-16 text-right">9%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Conversion Rate -->
+                            <div class="flex items-center px-2">
+                                <div class="w-32 flex-shrink-0">
+                                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Conversion Rate</span>
+                                </div>
+                                <div class="flex-grow ml-4 space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-grow h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                            <div class="h-full bg-primary rounded-full" style="width: 3.5%"></div>
+                                        </div>
+                                        <span class="text-xs text-gray-600 dark:text-gray-400 w-16 text-right">3.5%</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-grow h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                            <div class="h-full bg-secondary rounded-full" style="width: 5.2%"></div>
+                                        </div>
+                                        <span class="text-xs text-gray-600 dark:text-gray-400 w-16 text-right">5.2%</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-grow h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                            <div class="h-full bg-accent rounded-full" style="width: 2.8%"></div>
+                                        </div>
+                                        <span class="text-xs text-gray-600 dark:text-gray-400 w-16 text-right">2.8%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex mt-4 justify-between items-center px-2">
+                            <div class="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-md">
+                                <p class="text-xs text-gray-600 dark:text-gray-400">Ad ROI: <span class="text-low font-medium">3.2x</span> average return</p>
+                            </div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                                <svg class="w-4 h-4 mr-1 text-primary" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                </svg>
+                                Last 7 days performance
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column (1/3 width on large screens) -->
+                <div class="space-y-6">
+                    <!-- VIP Concierge KPIs -->
+                    <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow">
+                        <h3 class="text-lg font-medium mb-2">VIP Concierge Service</h3>
+                        <div class="mb-3 text-xs text-gray-500 dark:text-gray-400 px-2 py-1.5 bg-gray-100 dark:bg-gray-800 rounded">
+                            <span class="font-medium text-primary">Data Sources:</span> Biometric IDs, Mobile app, CRM system, VIP lounge access points, Staff tablets
+                        </div>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="text-sm font-medium">VIP Retention Rate</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">92%</div>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                                    <div class="bg-primary h-2.5 rounded-full" style="width: 92%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="text-sm font-medium">VIP Satisfaction</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">95%</div>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                                    <div class="bg-secondary h-2.5 rounded-full" style="width: 95%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="text-sm font-medium">Request Response Time</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">3.2 min</div>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                                    <div class="bg-low h-2.5 rounded-full" style="width: 89%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="text-sm font-medium">Premium Service Uptake</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">68%</div>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                                    <div class="bg-accent h-2.5 rounded-full" style="width: 68%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3 px-2 text-xs border-t border-gray-200 dark:border-gray-700 pt-2 text-accent">
+                            <span class="font-medium">Business Impact:</span> $3.8M annual premium revenue, 28% higher spend vs regular passengers
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow-teal">
+                        <h3 class="text-lg font-medium mb-2">Mobile App Usage Statistics</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="text-sm font-medium">Active Users</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">287,435</div>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                                    <div class="bg-primary h-2.5 rounded-full" style="width: 78%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="text-sm font-medium">Engagement Rate</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">82%</div>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                                    <div class="bg-secondary h-2.5 rounded-full" style="width: 82%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="text-sm font-medium">App Retention</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">65%</div>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                                    <div class="bg-accent h-2.5 rounded-full" style="width: 65%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="text-sm font-medium">Session Duration</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">6.8 min</div>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                                    <div class="bg-high h-2.5 rounded-full" style="width: 68%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3 px-2 text-xs border-t border-gray-200 dark:border-gray-700 pt-2 text-secondary">
+                            <span class="font-medium">Business Impact:</span> 18% increase in mobile bookings, $2.1M ancillary revenue from in-app purchases
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow-purple">
+                        <h3 class="text-lg font-medium mb-2">Passenger Feedback Analysis</h3>
+                        <div class="mt-2">
+                            <div class="flex items-center mb-2">
+                                <div class="text-sm font-medium">Sentiment Analysis</div>
+                            </div>
+                            <div class="flex h-8 overflow-hidden rounded">
+                                <div class="bg-low h-full" style="width: 68%"></div>
+                                <div class="bg-medium h-full" style="width: 21%"></div>
+                                <div class="bg-high h-full" style="width: 8%"></div>
+                                <div class="bg-critical h-full" style="width: 3%"></div>
+                            </div>
+                            <div class="flex justify-between text-xs mt-1">
+                                <span class="text-low">Positive: 68%</span>
+                                <span class="text-medium">Neutral: 21%</span>
+                                <span class="text-high">Mixed: 8%</span>
+                                <span class="text-critical">Negative: 3%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <div class="text-sm font-medium mb-2">Top Feedback Categories</div>
+                            <div class="space-y-2">
+                                <div class="flex items-center">
+                                    <div class="w-24 flex-shrink-0 text-xs">Wayfinding</div>
+                                    <div class="flex-grow h-2 ml-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                        <div class="h-full bg-primary rounded-full" style="width: 82%"></div>
+                                    </div>
+                                    <div class="text-xs ml-2 w-8 text-right">82%</div>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-24 flex-shrink-0 text-xs">Retail Offers</div>
+                                    <div class="flex-grow h-2 ml-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                        <div class="h-full bg-secondary rounded-full" style="width: 78%"></div>
+                                    </div>
+                                    <div class="text-xs ml-2 w-8 text-right">78%</div>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-24 flex-shrink-0 text-xs">Experience</div>
+                                    <div class="flex-grow h-2 ml-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                        <div class="h-full bg-accent rounded-full" style="width: 75%"></div>
+                                    </div>
+                                    <div class="text-xs ml-2 w-8 text-right">75%</div>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-24 flex-shrink-0 text-xs">Mobile App</div>
+                                    <div class="flex-grow h-2 ml-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                        <div class="h-full bg-low rounded-full" style="width: 88%"></div>
+                                    </div>
+                                    <div class="text-xs ml-2 w-8 text-right">88%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer with copyright -->
+            <footer class="mt-10 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="text-center text-xs text-gray-500 dark:text-gray-400">
+                    Softtek DIEGO All Rights Reserved - Designed by Roberto Cisneros © Valores Corporativos Softtek S.A. de C.V. 2025-2026 - Confidential
+                </div>
+            </footer>
+        </div>
+
+        <!-- Solution & Benefits Tab Content -->
+        <div id="content-sol" class="tab-content hidden">
+            <!-- Main content section for Solution & Benefits -->
+            <section class="mb-6">
+                <div class="bg-darkblue border border-gray-700 rounded-lg p-6 shadow-lg">
+                    <!-- blauLabs Header Section -->
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-bold text-white mb-3 flex items-center">
+                            <span class="text-primary">blau</span><span class="text-white">Labs</span>
+                            <span class="ml-3 text-lg font-normal">Operational Benefits &amp; Improvements</span>
+                        </h2>
+                        <p class="text-gray-300 text-sm mb-4">Unified airline dashboard integrating Aircraft Systems, Passenger Experience, and Sustainability Hub for complete visibility across fleet management.</p>
+                    </div>
+                    
+                    <!-- Three-column Benefits Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Operational Efficiency Column -->
+                        <div class="border border-gray-700 rounded-lg p-4 bg-darkgray/40">
+                            <h3 class="text-primary font-bold text-lg mb-3 flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path>
+                                </svg>
+                                Operational Efficiency
+                            </h3>
+                            <ul class="text-sm space-y-3">
+                                <li class="flex items-baseline">
+                                    <span class="text-low font-medium mr-2">↓ 11%</span>
+                                    <span class="text-gray-300">reduction in aircraft turnaround time</span>
+                                </li>
+                                <li class="flex items-baseline">
+                                    <span class="text-low font-medium mr-2">↑ 18%</span>
+                                    <span class="text-gray-300">increase in ground equipment utilization</span>
+                                </li>
+                                <li class="flex items-baseline">
+                                    <span class="text-low font-medium mr-2">↓ 24%</span>
+                                    <span class="text-gray-300">decrease in operational delays</span>
+                                </li>
+                                <li class="flex items-baseline">
+                                    <span class="text-low font-medium mr-2">$3.2M</span>
+                                    <span class="text-gray-300">annual savings in operational costs</span>
+                                </li>
+                                <li class="flex items-baseline">
+                                    <span class="text-low font-medium mr-2">↑ 8%</span>
+                                    <span class="text-gray-300">increase in gate throughput</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Passenger Experience Column -->
+                        <div class="border border-gray-700 rounded-lg p-4 bg-darkgray/40">
+                            <h3 class="text-secondary font-bold text-lg mb-3 flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd"></path>
+                                </svg>
+                                Passenger Experience
+                            </h3>
+                            <ul class="text-sm space-y-3">
+                                <li class="flex items-baseline">
+                                    <span class="text-secondary font-medium mr-2">↑ 87%</span>
+                                    <span class="text-gray-300">passenger satisfaction with wayfinding</span>
+                                </li>
+                                <li class="flex items-baseline">
+                                    <span class="text-secondary font-medium mr-2">↓ 38%</span>
+                                    <span class="text-gray-300">reduction in missed connections</span>
+                                </li>
+                                <li class="flex items-baseline">
+                                    <span class="text-secondary font-medium mr-2">↑ 32%</span>
+                                    <span class="text-gray-300">increase in non-aeronautical revenue</span>
+                                </li>
+                                <li class="flex items-baseline">
+                                    <span class="text-secondary font-medium mr-2">↑ 24%</span>
+                                    <span class="text-gray-300">conversion rate from dwell time</span>
+                                </li>
+                                <li class="flex items-baseline">
+                                    <span class="text-secondary font-medium mr-2">↓ 41%</span>
+                                    <span class="text-gray-300">reduction in customer complaints</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Sustainability Hub Column -->
+                        <div class="border border-gray-700 rounded-lg p-4 bg-darkgray/40">
+                            <h3 class="text-accent font-bold text-lg mb-3 flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-2 0c0 .993-.241 1.929-.668 2.754l-1.524-1.525a3.997 3.997 0 00.078-2.183l1.562-1.562C15.802 8.249 16 9.1 16 10zm-5.165 3.913l1.58 1.58A5.98 5.98 0 0110 16a5.976 5.976 0 01-2.516-.552l1.562-1.562a4.006 4.006 0 001.789.027zm-4.677-2.796a4.002 4.002 0 01-.041-2.08l-.08.08-1.53-1.533A5.98 5.98 0 004 10c0 .954.223 1.856.619 2.657l1.54-1.54zm1.088-6.45A5.974 5.974 0 0110 4c.954 0 1.856.223 2.657.619l-1.54 1.54a4.002 4.002 0 00-2.346.033L7.246 4.668zM12 10a2 2 0 11-4 0 2 2 0 014 0z" clip-rule="evenodd"></path>
+                                </svg>
+                                Sustainability &amp; Safety
+                            </h3>
+                            <ul class="text-sm space-y-3">
+                                <li class="flex items-baseline">
+                                    <span class="text-accent font-medium mr-2">↓ 6.5%</span>
+                                    <span class="text-gray-300">reduction in fuel consumption</span>
+                                </li>
+                                <li class="flex items-baseline">
+                                    <span class="text-accent font-medium mr-2">↓ 8.2%</span>
+                                    <span class="text-gray-300">decrease in CO2 emissions</span>
+                                </li>
+                                <li class="flex items-baseline">
+                                    <span class="text-accent font-medium mr-2">↓ 22%</span>
+                                    <span class="text-gray-300">reduction in ground incidents</span>
+                                </li>
+                                <li class="flex items-baseline">
+                                    <span class="text-accent font-medium mr-2">↑ 99.2%</span>
+                                    <span class="text-gray-300">technical dispatch reliability</span>
+                                </li>
+                                <li class="flex items-baseline">
+                                    <span class="text-accent font-medium mr-2">↓ 14%</span>
+                                    <span class="text-gray-300">reduction in maintenance costs</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Key Integration Value Box -->
+                    <div class="mt-6 px-4 py-3 bg-darkblue/80 rounded-lg border border-primary/30 flex items-center">
+                        <div class="flex-shrink-0 p-2 bg-primary/20 rounded-full mr-3">
+                            <svg class="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z"></path>
+                            </svg>
+                        </div>
+                        <p class="text-sm text-gray-300">
+                            <span class="font-bold text-primary">Key Integration Value:</span> <span class="font-semibold">blauLabs</span> combines data from multiple sources to provide end-to-end visibility, enabling proactive decision making and creating operational synergies that single-point solutions cannot achieve.
+                        </p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Platform Information Section -->
+            <section class="mb-6">
+                <div class="bg-white dark:bg-darkgray p-5 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700">
+                    <h2 class="text-xl font-bold mb-4">Platform Integration</h2>
+                    
+                    <div class="mb-5">
+                        <h3 class="font-medium text-lg mb-2 text-primary">Unified airline dashboard integrating:</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="p-3 bg-primary/10 rounded-lg border border-primary/20">
+                                <span class="text-primary font-medium">Aircraft Systems</span>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Real-time data from IoT sensors, maintenance systems, and flight operations</p>
+                            </div>
+                            <div class="p-3 bg-secondary/10 rounded-lg border border-secondary/20">
+                                <span class="text-secondary font-medium">Passenger Experience</span>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Mobile app interactions, wayfinding, retail offers, and personalization engines</p>
+                            </div>
+                            <div class="p-3 bg-accent/10 rounded-lg border border-accent/20">
+                                <span class="text-accent font-medium">Sustainability Hub</span>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Equipment tracking, turnaround management, and resource optimization</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Integration Stats -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                        <div class="bg-darkblue/20 dark:bg-darkblue/40 p-3 rounded border border-primary/20">
+                            <h4 class="text-sm font-semibold text-primary mb-1">Data Integration</h4>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">30+ data sources unified in real-time</p>
+                        </div>
+                        <div class="bg-darkblue/20 dark:bg-darkblue/40 p-3 rounded border border-secondary/20">
+                            <h4 class="text-sm font-semibold text-secondary mb-1">IoT Sensors</h4>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">5,200+ connected devices across fleet</p>
+                        </div>
+                        <div class="bg-darkblue/20 dark:bg-darkblue/40 p-3 rounded border border-accent/20">
+                            <h4 class="text-sm font-semibold text-accent mb-1">AI Analytics</h4>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Predictive insights for operations</p>
+                        </div>
+                        <div class="bg-darkblue/20 dark:bg-darkblue/40 p-3 rounded border border-low/20">
+                            <h4 class="text-sm font-semibold text-low mb-1">Business Impact</h4>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">$4.3M annual operational savings</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Implementation Process Timeline -->
+            <section class="mb-6">
+                <div class="bg-white dark:bg-darkgray p-5 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700">
+                    <h2 class="text-xl font-bold mb-3">Implementation Process</h2>
+                    <div class="relative">
+                        <!-- Timeline Line -->
+                        <div class="absolute h-full w-0.5 bg-primary left-7 top-0"></div>
+                        
+                        <!-- Timeline Steps -->
+                        <div class="ml-14 space-y-8 pb-2 relative">
+                            <!-- Step 1 -->
+                            <div class="relative">
+                                <div class="absolute -left-14 mt-1.5 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-sm font-bold">1</div>
+                                <h3 class="text-lg font-medium text-primary">Assessment &amp; Planning</h3>
+                                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Initial systems assessment, data mapping, and integration planning. Timeline: 4-6 weeks.</p>
+                            </div>
+                            
+                            <!-- Step 2 -->
+                            <div class="relative">
+                                <div class="absolute -left-14 mt-1.5 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-sm font-bold">2</div>
+                                <h3 class="text-lg font-medium text-primary">Data Integration &amp; Configuration</h3>
+                                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Connecting data sources, configuring dashboards, and setting up custom KPIs. Timeline: 8-12 weeks.</p>
+                            </div>
+                            
+                            <!-- Step 3 -->
+                            <div class="relative">
+                                <div class="absolute -left-14 mt-1.5 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-sm font-bold">3</div>
+                                <h3 class="text-lg font-medium text-primary">Testing &amp; Optimization</h3>
+                                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Comprehensive testing, user feedback collection, and performance optimization. Timeline: 4-6 weeks.</p>
+                            </div>
+                            
+                            <!-- Step 4 -->
+                            <div class="relative">
+                                <div class="absolute -left-14 mt-1.5 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-sm font-bold">4</div>
+                                <h3 class="text-lg font-medium text-primary">Deployment &amp; Training</h3>
+                                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Full system deployment, user training, and documentation delivery. Timeline: 2-4 weeks.</p>
+                            </div>
+                            
+                            <!-- Step 5 -->
+                            <div class="relative">
+                                <div class="absolute -left-14 mt-1.5 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-sm font-bold">5</div>
+                                <h3 class="text-lg font-medium text-primary">Ongoing Support &amp; Evolution</h3>
+                                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Continuous monitoring, regular updates, and platform enhancement. Timeline: Ongoing.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 bg-primary/10 rounded-lg p-4 border border-primary/20">
+                        <h3 class="font-medium text-primary mb-2">Implementation Timeline</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            Full deployment in <span class="font-semibold text-primary">18-28 weeks</span> with phased approach. 
+                            Core components can be operational within <span class="font-semibold text-primary">12 weeks</span> 
+                            using our accelerated implementation methodology.
+                        </p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Contact & Next Steps CTA -->
+            <section class="mb-6">
+                <div class="bg-darkblue p-10 rounded-lg shadow-lg text-center">
+                    <h2 class="text-xl font-bold text-white mb-3">Ready to Transform Your Airline Operations?</h2>
+                    <p class="text-gray-300 mb-6 max-w-3xl mx-auto">
+                        Schedule a personalized demo to see how blauLabs can unify your airline systems, improve operational 
+                        efficiency, enhance passenger experience, and reduce costs.
+                    </p>
+                    
+                    <div class="mb-8">
+                        <a href="https://outlook.office.com/owa/calendar/SofttekAI@onesofttek.onmicrosoft.com/bookings/" target="_blank" rel="noopener noreferrer" class="bg-primary hover:bg-primary/90 text-white font-medium py-3 px-8 rounded-md transition-all duration-200 inline-flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path>
+                            </svg>
+                            Schedule Demo
+                        </a>
+                    </div>
+
+                    <!-- Blue line separators -->
+                    <div class="w-full h-1 bg-primary/30 mb-2 rounded-full"></div>
+                    <div class="w-full h-1 bg-primary/20 mb-8 rounded-full"></div>
+                    
+                    <footer class="text-center text-xs text-gray-400">
+                        Softtek DIEGO All Rights Reserved - Designed by Roberto Cisneros © Valores Corporativos Softtek S.A. de C.V. 2025-2026 - Confidential
+                    </footer>
+                </div>
+            </section>
+            
+            <!-- Footer with copyright -->
+            <footer class="mt-10 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="text-center text-xs text-gray-500 dark:text-gray-400">
+                    Softtek DIEGO All Rights Reserved - Designed by Roberto Cisneros © Valores Corporativos Softtek S.A. de C.V. 2025-2026 - Confidential
+                </div>
+            </footer>
+        </div>
+        
+        <!-- Sustainability Hub Tab Content -->
+        <div id="content-sus" class="tab-content hidden">
+            <!-- Overview Description Section -->
+            <section class="mb-6">
+                <div class="bg-white dark:bg-darkgray/80 p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow-accent">
+                    <p class="text-gray-600 dark:text-gray-300">
+                        BlauLabs promotes airport sustainability through real-time energy optimization, emissions monitoring, smart waste management, water conservation, renewable energy integration, green building management, aircraft efficiency tracking, noise reduction measures, and smart grid integration to reduce environmental impact and operating costs.
+                    </p>
+                </div>
+            </section>
+            
+            <!-- Sustainability Hub KPI Cards -->
+            <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <!-- Fuel Efficiency -->
+                <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300">Fuel Efficiency</h3>
+                            <p class="text-2xl font-bold">3.42<span class="text-base font-normal"> L/100km</span></p>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-low/20 dark:text-low dark:font-semibold">
+                            -2.3% ↓
+                        </span>
+                    </div>
+                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">Fleet average per passenger</div>
+                </div>
+
+                <!-- CO2 Emissions -->
+                <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow-teal">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300">CO2 Emissions</h3>
+                            <p class="text-2xl font-bold">82<span class="text-base font-normal"> g/km</span></p>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-low/20 dark:text-low dark:font-semibold">
+                            -4.1% ↓
+                        </span>
+                    </div>
+                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">Per passenger kilometer</div>
+                </div>
+
+                <!-- Cabin Occupancy -->
+                <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow-purple">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300">Cabin Occupancy</h3>
+                            <p class="text-2xl font-bold">87.2<span class="text-base font-normal">%</span></p>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-low/20 dark:text-low dark:font-semibold">
+                            +2.8% ↑
+                        </span>
+                    </div>
+                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">Fleet average passenger load</div>
+                </div>
+
+                <!-- In-Flight Connectivity -->
+                <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300">WiFi Connectivity</h3>
+                            <p class="text-2xl font-bold">94<span class="text-base font-normal">%</span></p>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-low/20 dark:text-low dark:font-semibold">
+                            +1.5% ↑
+                        </span>
+                    </div>
+                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">WiFi service availability</div>
+                </div>
+            </section>
+
+            <!-- Secondary Sustainability KPI Cards -->
+            <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <!-- On-Time Performance -->
+                <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300">On-Time Performance</h3>
+                            <p class="text-2xl font-bold">86.4<span class="text-base font-normal">%</span></p>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-low/20 dark:text-low dark:font-semibold">
+                            +3.2% ↑
+                        </span>
+                    </div>
+                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">Arrival within 15 minutes</div>
+                </div>
+
+                <!-- Maintenance Prediction -->
+                <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow-teal">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300">Predicted Maintenance</h3>
+                            <p class="text-2xl font-bold">18<span class="text-base font-normal"> items</span></p>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-critical/20 dark:text-critical dark:font-semibold">
+                            +2 ↑
+                        </span>
+                    </div>
+                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">Next 7 days prediction</div>
+                </div>
+
+                <!-- Technical Dispatch Reliability -->
+                <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow-purple">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300">Tech. Dispatch Reliability</h3>
+                            <p class="text-2xl font-bold">99.2<span class="text-base font-normal">%</span></p>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-low/20 dark:text-low dark:font-semibold">
+                            +0.3% ↑
+                        </span>
+                    </div>
+                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">Departures without tech delay</div>
+                </div>
+
+                <!-- Maintenance Costs -->
+                <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-300">Maintenance Cost</h3>
+                            <p class="text-2xl font-bold">$284<span class="text-base font-normal">/hr</span></p>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-low/20 dark:text-low dark:font-semibold">
+                            -1.8% ↓
+                        </span>
+                    </div>
+                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">Per flight hour</div>
+                </div>
+            </section>
+
+            <!-- Environmental Metrics Section -->
+            <section class="mb-6">
+                <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow">
+                    <h3 class="text-lg font-medium mb-4">Environmental Metrics</h3>
+                    
+                    <!-- Top Row Charts -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                        <!-- Energy Consumption Chart -->
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="text-base font-medium">Energy Consumption</h4>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">Unit: kWh</span>
+                            </div>
+                            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                                <div class="h-64">
+                                    <canvas id="energyConsumptionChart"></canvas>
+                                </div>
+                                <div class="mt-2 text-xs text-gray-500 dark:text-gray-400 flex justify-between">
+                                    <span>Data Sources: Energy meters, IoT sensors</span>
+                                    <span class="text-low font-medium">-8.3% YoY</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Carbon Emissions Chart -->
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="text-base font-medium">Carbon Emissions</h4>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">Unit: Metric Tons (MT)</span>
+                            </div>
+                            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                                <div class="h-64">
+                                    <canvas id="carbonEmissionsChart"></canvas>
+                                </div>
+                                <div class="mt-2 text-xs text-gray-500 dark:text-gray-400 flex justify-between">
+                                    <span>Data Sources: Emission sensors, Activity logs</span>
+                                    <span class="text-low font-medium">-12.4% YoY</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Middle Row Charts - Water & Waste -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                        <!-- Water Usage Chart -->
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="text-base font-medium">Water Usage</h4>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">Unit: Liters (L)</span>
+                            </div>
+                            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                                <div class="h-64">
+                                    <canvas id="waterUsageChart"></canvas>
+                                </div>
+                                <div class="mt-2 text-xs text-gray-500 dark:text-gray-400 flex justify-between">
+                                    <span>Data Sources: Water meters, IoT sensors</span>
+                                    <span class="text-low font-medium">-5.7% YoY</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Waste Management Chart -->
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="text-base font-medium">Waste Management</h4>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">Unit: Kilograms (kg)</span>
+                            </div>
+                            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                                <div class="h-64">
+                                    <canvas id="wasteManagementChart"></canvas>
+                                </div>
+                                <div class="mt-2 text-xs text-gray-500 dark:text-gray-400 flex justify-between">
+                                    <span>Data Sources: Waste logs, Recycling records</span>
+                                    <span class="text-low font-medium">63% Recycling Rate</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Row Charts - AQI, Noise, Renewable -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Air Quality Index Chart -->
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="text-base font-medium">Air Quality Index</h4>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">Unit: AQI</span>
+                            </div>
+                            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                                <div class="h-48">
+                                    <canvas id="airQualityChart"></canvas>
+                                </div>
+                                <div class="mt-2 text-xs text-gray-500 dark:text-gray-400 flex justify-between">
+                                    <span>Data Sources: Air quality sensors</span>
+                                    <span class="text-low font-medium">Good (42 AQI)</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Noise Levels Chart -->
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="text-base font-medium">Noise Levels</h4>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">Unit: Decibels (dB)</span>
+                            </div>
+                            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                                <div class="h-48">
+                                    <canvas id="noiseLevelsChart"></canvas>
+                                </div>
+                                <div class="mt-2 text-xs text-gray-500 dark:text-gray-400 flex justify-between">
+                                    <span>Data Sources: Noise sensors</span>
+                                    <span class="text-medium font-medium">Avg: 65.8 dB</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Renewable Energy Usage Chart -->
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="text-base font-medium">Renewable Energy Usage</h4>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">Unit: %</span>
+                            </div>
+                            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                                <div class="h-48">
+                                    <canvas id="renewableEnergyChart"></canvas>
+                                </div>
+                                <div class="mt-2 text-xs text-gray-500 dark:text-gray-400 flex justify-between">
+                                    <span>Data Sources: Energy meters</span>
+                                    <span class="text-low font-medium">+8.2% YoY</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Operations & Safety Section -->
+            <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <!-- Operational Efficiency -->
+                <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow-teal">
+                    <h3 class="text-lg font-medium mb-4">Operational Efficiency</h3>
+                    
+                    <!-- HVAC System Efficiency -->
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="text-base font-medium">HVAC System Efficiency</h4>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Unit: %</span>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                            <div class="h-48">
+                                <canvas id="hvacEfficiencyChart"></canvas>
+                            </div>
+                            <div class="mt-2 text-xs text-gray-500 dark:text-gray-400 flex justify-between">
+                                <span>Data Sources: HVAC logs, Energy meters</span>
+                                <span class="text-low font-medium">+3.5% YoY</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Passenger Satisfaction Gauge -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="text-base font-medium">Passenger Satisfaction</h4>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Unit: %</span>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                            <div class="h-48">
+                                <canvas id="passengerSatisfactionGauge"></canvas>
+                            </div>
+                            <div class="mt-2 text-xs text-gray-500 dark:text-gray-400 flex justify-between">
+                                <span>Data Sources: Survey data, Feedback forms</span>
+                                <span class="text-low font-medium">+5.8% YoY</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Safety & Security -->
+                <div class="bg-white dark:bg-darkgray p-4 rounded-lg shadow backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80 border border-transparent dark:border-gray-700 shadow-glow-purple">
+                    <h3 class="text-lg font-medium mb-4">Safety &amp; Security</h3>
+                    
+                    <!-- Security Incidents -->
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="text-base font-medium">Security Incidents</h4>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Unit: Count</span>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                            <div class="h-48">
+                                <canvas id="securityIncidentsChart"></canvas>
+                            </div>
+                            <div class="mt-2 text-xs text-gray-500 dark:text-gray-400 flex justify-between">
+                                <span>Data Sources: Security logs, Incident reports</span>
+                                <span class="text-low font-medium">-28% YoY</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Emergency Response Time -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="text-base font-medium">Emergency Response Time</h4>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Unit: Minutes</span>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                            <div class="h-48">
+                                <canvas id="responseTimeChart"></canvas>
+                            </div>
+                            <div class="mt-2 text-xs text-gray-500 dark:text-gray-400 flex justify-between">
+                                <span>Data Sources: Emergency logs, Incident reports</span>
+                                <span class="text-low font-medium">-1.8 min from baseline</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Footer with copyright -->
+            <footer class="mt-10 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="text-center text-xs text-gray-500 dark:text-gray-400">
+                    Softtek DIEGO All Rights Reserved - Designed by Roberto Cisneros © Valores Corporativos Softtek S.A. de C.V. 2025-2026 - Confidential
+                </div>
+            </footer>
+        </div>
+
+        <!-- Tab Switching Logic -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Tab functionality
+                const tabButtons = document.querySelectorAll('.tab-button');
+                const tabContents = document.querySelectorAll('.tab-content');
+                const tabHeaders = document.querySelectorAll('.tab-header');
+                
+                function switchTab(tabId) {
+                    // Hide all tabs
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    
+                    // Hide all headers
+                    tabHeaders.forEach(header => {
+                        header.classList.add('hidden');
+                    });
+                    
+                    // Show selected tab
+                    document.getElementById('content-' + tabId).classList.remove('hidden');
+                    document.getElementById('header-' + tabId).classList.remove('hidden');
+                    
+                    // Update active tab styling
+                    tabButtons.forEach(button => {
+                        // Remove active styling
+                        button.classList.remove('dark:bg-darkgray', 'border-b-2', 'border-primary', 'dark:border-primary', 'shadow-glow');
+                        button.classList.add('text-gray-500', 'dark:text-gray-400', 'dark:hover:text-primary');
+                        
+                        // Add active styling to selected tab
+                        if (button.id === 'tab-' + tabId) {
+                            button.classList.add('dark:bg-darkgray', 'border-b-2', 'border-primary', 'dark:border-primary', 'shadow-glow');
+                            button.classList.remove('text-gray-500', 'dark:text-gray-400', 'dark:hover:text-primary');
+                        }
+                    });
+                }
+                
+                // Add click event to tab buttons
+                tabButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const tabId = this.id.split('-')[1]; // Get tab ID from button ID (tab-pre -> pre)
+                        switchTab(tabId);
+                    });
+                });
+                
+                // For demo purposes, let's initialize with the Solution & Benefits tab active
+                switchTab('sol');
+
+                // Initialize charts
+                initCharts();
+            });
+
+            function getChartColors(isDark) {
+                return {
+                    gridColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                    textColor: isDark ? '#E5E7EB' : '#374151',
+                    critical: '#FF3A5E',     /* modern red */
+                    high: '#FF8700',         /* modern orange */
+                    medium: '#FFD600',       /* modern yellow */
+                    low: '#00E64D',          /* modern green */
+                    primary: '#00A7E1',      /* airline blue */
+                    secondary: '#00E1D9',    /* teal accent */
+                    accent: '#9D4EDD',       /* purple accent */
+                    background: isDark ? '#0D1B2A' : '#FFFFFF'
+                };
+            }
+
+            function initCharts() {
+                const isDark = document.documentElement.classList.contains('dark');
+                const colors = getChartColors(isDark);
+                
+                // Boarding Trend Chart
+                if (document.getElementById('boardingTrendChart')) {
+                    const boardingTrendCtx = document.getElementById('boardingTrendChart').getContext('2d');
+                    const boardingTrendData = {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [
+                            {
+                                label: 'Gate A',
+                                data: [85, 88, 92, 90, 94, 96, 91],
+                                borderColor: colors.primary,
+                                backgroundColor: 'rgba(0, 167, 225, 0.1)',
+                                borderWidth: 2,
+                                tension: 0.3,
+                                fill: true
+                            },
+                            {
+                                label: 'Gate B',
+                                data: [82, 85, 89, 88, 90, 93, 87],
+                                borderColor: colors.secondary,
+                                backgroundColor: 'rgba(0, 225, 217, 0.1)',
+                                borderWidth: 2,
+                                tension: 0.3,
+                                fill: true
+                            },
+                            {
+                                label: 'Gate C',
+                                data: [78, 80, 82, 83, 85, 88, 84],
+                                borderColor: colors.accent,
+                                backgroundColor: 'rgba(157, 78, 221, 0.1)',
+                                borderWidth: 2,
+                                tension: 0.3,
+                                fill: true
+                            }
+                        ]
+                    };
+
+                    new Chart(boardingTrendCtx, {
+                        type: 'line',
+                        data: boardingTrendData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                    labels: {
+                                        color: colors.textColor
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    grid: {
+                                        color: colors.gridColor
+                                    },
+                                    ticks: {
+                                        color: colors.textColor
+                                    }
+                                },
+                                y: {
+                                    beginAtZero: false,
+                                    min: 75,
+                                    max: 100,
+                                    grid: {
+                                        color: colors.gridColor
+                                    },
+                                    ticks: {
+                                        color: colors.textColor
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                // Retail Chart (Donut)
+                if (document.getElementById('retailChart')) {
+                    const retailCtx = document.getElementById('retailChart').getContext('2d');
+                    const retailData = {
+                        labels: ['Food & Beverage', 'Duty Free', 'Travel Essentials', 'Luxury Goods', 'Other'],
+                        datasets: [{
+                            data: [35, 25, 20, 15, 5],
+                            backgroundColor: [colors.primary, colors.secondary, colors.accent, colors.high, colors.medium],
+                            borderWidth: 0
+                        }]
+                    };
+
+                    new Chart(retailCtx, {
+                        type: 'doughnut',
+                        data: retailData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'right',
+                                    labels: {
+                                        color: colors.textColor
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                // Retail Chart in Passenger Experience tab (copy of the one in Operations tab)
+                if (document.getElementById('retailChartExp')) {
+                    const retailExpCtx = document.getElementById('retailChartExp').getContext('2d');
+                    const retailExpData = {
+                        labels: ['Food & Beverage', 'Duty Free', 'Travel Essentials', 'Luxury Goods', 'Other'],
+                        datasets: [{
+                            data: [35, 25, 20, 15, 5],
+                            backgroundColor: [colors.primary, colors.secondary, colors.accent, colors.high, colors.medium],
+                            borderWidth: 0
+                        }]
+                    };
+
+                    new Chart(retailExpCtx, {
+                        type: 'doughnut',
+                        data: retailExpData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'right',
+                                    labels: {
+                                        color: colors.textColor
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                // Baggage Chart (Horizontal Bar)
+                if (document.getElementById('baggageChart')) {
+                    const baggageCtx = document.getElementById('baggageChart').getContext('2d');
+                    const baggageData = {
+                        labels: ['Terminal 1', 'Terminal 2', 'Terminal 3', 'Terminal 4'],
+                        datasets: [{
+                            label: 'Delivery Time (minutes)',
+                            data: [18.5, 16.3, 22.7, 14.8],
+                            backgroundColor: colors.secondary,
+                            borderWidth: 0,
+                            barThickness: 20,
+                            borderRadius: 4
+                        }]
+                    };
+
+                    new Chart(baggageCtx, {
+                        type: 'bar',
+                        data: baggageData,
+                        options: {
+                            indexAxis: 'y',
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    grid: {
+                                        color: colors.gridColor
+                                    },
+                                    ticks: {
+                                        color: colors.textColor
+                                    }
+                                },
+                                y: {
+                                    grid: {
+                                        display: false
+                                    },
+                                    ticks: {
+                                        color: colors.textColor
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                // Energy Consumption Chart (Line)
+                if (document.getElementById('energyConsumptionChart')) {
+                    const energyCtx = document.getElementById('energyConsumptionChart').getContext('2d');
+                    const energyData = {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                        datasets: [
+                            {
+                                label: 'Current Year',
+                                data: [78500, 75200, 79800, 72300, 68400, 67200, 69800, 70200, 67500, 65800, 64200, 62800],
+                                borderColor: colors.primary,
+                                backgroundColor: 'rgba(0, 167, 225, 0.1)',
+                                borderWidth: 2,
+                                tension: 0.3,
+                                fill: true
+                            },
+                            {
+                                label: 'Previous Year',
+                                data: [85700, 84300, 87200, 82500, 78900, 76700, 77300, 78100, 75600, 74200, 72800, 70100],
+                                borderColor: colors.secondary,
+                                backgroundColor: 'rgba(0, 225, 217, 0.1)',
+                                borderWidth: 2,
+                                tension: 0.3,
+                                fill: true,
+                                borderDash: [5, 5]
+                            }
+                        ]
+                    };
+
+                    new Chart(energyCtx, {
+                        type: 'line',
+                        data: energyData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                    labels: {
+                                        color: colors.textColor
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    grid: {
+                                        color: colors.gridColor
+                                    },
+                                    ticks: {
+                                        color: colors.textColor
+                                    }
+                                },
+                                y: {
+                                    grid: {
+                                        color: colors.gridColor
+                                    },
+                                    ticks: {
+                                        color: colors.textColor,
+                                        callback: function(value) {
+                                            return value.toLocaleString() + ' kWh';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                // Carbon Emissions Chart (Bar)
+                if (document.getElementById('carbonEmissionsChart')) {
+                    const carbonCtx = document.getElementById('carbonEmissionsChart').getContext('2d');
+                    const carbonData = {
+                        labels: ['Terminal 1', 'Terminal 2', 'Terminal 3', 'Cargo', 'Ground Ops'],
+                        datasets: [
+                            {
+                                label: 'Current Year',
+                                data: [125, 95, 105, 85, 65],
+                                backgroundColor: colors.low,
+                                borderWidth: 0,
+                                borderRadius: 4
+                            },
+                            {
+                                label: 'Previous Year',
+                                data: [140, 110, 120, 100, 75],
+                                backgroundColor: colors.medium,
+                                borderWidth: 0,
+                                borderRadius: 4
+                            }
+                        ]
+                    };
+
+                    new Chart(carbonCtx, {
+                        type: 'bar',
+                        data: carbonData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                    labels: {
+                                        color: colors.textColor
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    grid: {
+                                        display: false
+                                    },
+                                    ticks: {
+                                        color: colors.textColor
+                                    }
+                                },
+                                y: {
+                                    grid: {
+                                        color: colors.gridColor
+                                    },
+                                    ticks: {
+                                        color: colors.textColor,
+                                        callback: function(value) {
+                                            return value + ' MT';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                // Water Usage Chart (Line)
+                if (document.getElementById('waterUsageChart')) {
+                    const waterCtx = document.getElementById('waterUsageChart').getContext('2d');
+                    const waterData = {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                        datasets: [
+                            {
+                                label: 'Consumption',
+                                data: [650000, 620000, 680000, 720000, 780000, 820000, 850000, 830000, 780000, 730000, 680000, 640000],
+                                borderColor: colors.primary,
+                                backgroundColor: 'rgba(0, 167, 225, 0.1)',
+                                borderWidth: 2,
+                                tension: 0.3,
+                                fill: true
+                            }
+                        ]
+                    };
+
+                    new Chart(waterCtx, {
+                        type: 'line',
+                        data: waterData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    grid: {
+                                        color: colors.gridColor
+                                    },
+                                    ticks: {
+                                        color: colors.textColor
+                                    }
+                                },
+                                y: {
+                                    grid: {
+                                        color: colors.gridColor
+                                    },
+                                    ticks: {
+                                        color: colors.textColor,
+                                        callback: function(value) {
+                                            return (value / 1000).toLocaleString() + 'K L';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                // Waste Management Chart (Pie)
+                if (document.getElementById('wasteManagementChart')) {
+                    const wasteCtx = document.getElementById('wasteManagementChart').getContext('2d');
+                    const wasteData = {
+                        labels: ['Recycled', 'Composted', 'Incinerated', 'Landfill'],
+                        datasets: [{
+                            data: [63, 12, 15, 10],
+                            backgroundColor: [colors.low, colors.medium, colors.high, colors.critical],
+                            borderWidth: 0
+                        }]
+                    };
+
+                    new Chart(wasteCtx, {
+                        type: 'pie',
+                        data: wasteData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'right',
+                                    labels: {
+                                        color: colors.textColor
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                // Air Quality Index Chart (Line)
+                if (document.getElementById('airQualityChart')) {
+                    const aqiCtx = document.getElementById('airQualityChart').getContext('2d');
+                    const aqiData = {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [
+                            {
+                                label: 'Terminal 1',
+                                data: [42, 38, 45, 40, 43, 41, 39],
+                                borderColor: colors.primary,
+                                backgroundColor: 'transparent',
+                                borderWidth: 2,
+                                tension: 0.3,
+                                pointRadius: 3
+                            },
+                            {
+                                label: 'Terminal 2',
+                                data: [38, 36, 41, 39, 40, 38, 35],
+                                borderColor: colors.secondary,
+                                backgroundColor: 'transparent',
+                                borderWidth: 2,
+                                tension: 0.3,
+                                pointRadius: 3
+                            }
+                        ]
+                    };
+
+                    new Chart(aqiCtx, {
+                        type: 'line',
+                        data: aqiData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                    labels: {
+                                        color: colors.textColor
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    grid: {
+                                        display: false
+                                    },
+                                    ticks: {
+                                        color: colors.textColor
+                                    }
+                                },
+                                y: {
+                                    beginAtZero: false,
+                                    min: 30,
+                                    max: 50,
+                                    grid: {
+                                        color: colors.gridColor
+                                    },
+                                    ticks: {
+                                        color: colors.textColor
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                // Noise Levels Chart (Line)
+                if (document.getElementById('noiseLevelsChart')) {
+                    const noiseCtx = document.getElementById('noiseLevelsChart').getContext('2d');
+                    const noiseData = {
+                        labels: ['6am', '8am', '10am', '12pm', '2pm', '4pm', '6pm', '8pm', '10pm'],
+                        datasets: [
+                            {
+                                label: 'Avg. Noise Level',
+                                data: [58, 65, 68, 67, 66, 69, 70, 67, 62],
+                                borderColor: colors.high,
+                                backgroundColor: 'rgba(255, 135, 0, 0.1)',
+                                borderWidth: 2,
+                                tension: 0.3,
+                                fill: true
+                            }
+                        ]
+                    };
+
+                    new Chart(noiseCtx, {
+                        type: 'line',
+                        data: noiseData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    grid: {
+                                        display: false
+                                    },
+                                    ticks: {
+                                        color: colors.textColor
+                                    }
+                                },
+                                y: {
+                                    beginAtZero: false,
+                                    min: 50,
+                                    max: 80,
+                                    grid: {
+                                        color: colors.gridColor
+                                    },
+                                    ticks: {
+                                        color: colors.textColor,
+                                        callback: function(value) {
+                                            return value + ' dB';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                // Renewable Energy Usage Chart (Doughnut)
+                if (document.getElementById('renewableEnergyChart')) {
+                    const renewableCtx = document.getElementById('renewableEnergyChart').getContext('2d');
+                    const renewableData = {
+                        labels: ['Solar', 'Wind', 'Biomass', 'Non-Renewable'],
+                        datasets: [{
+                            data: [28, 14, 6, 52],
+                            backgroundColor: [colors.low, colors.secondary, colors.accent, colors.high],
+                            borderWidth: 0
+                        }]
+                    };
+
+                    new Chart(renewableCtx, {
+                        type: 'doughnut',
+                        data: renewableData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'right',
+                                    labels: {
+                                        color: colors.textColor
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                // HVAC System Efficiency Chart (Line)
+                if (document.getElementById('hvacEfficiencyChart')) {
+                    const hvacCtx = document.getElementById('hvacEfficiencyChart').getContext('2d');
+                    const hvacData = {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                        datasets: [
+                            {
+                                label: 'Efficiency',
+                                data: [82, 81, 84, 86, 88, 89, 87, 85, 88, 87, 85, 83],
+                                borderColor: colors.primary,
+                                backgroundColor: 'rgba(0, 167, 225, 0.1)',
+                                borderWidth: 2,
+                                tension: 0.3,
+                                fill: true
+                            }
+                        ]
+                    };
+
+                    new Chart(hvacCtx, {
+                        type: 'line',
+                        data: hvacData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    grid: {
+                                        display: false
+                                    },
+                                    ticks: {
+                                        color: colors.textColor
+                                    }
+                                },
+                                y: {
+                                    beginAtZero: false,
+                                    min: 75,
+                                    max: 95,
+                                    grid: {
+                                        color: colors.gridColor
+                                    },
+                                    ticks: {
+                                        color: colors.textColor,
+                                        callback: function(value) {
+                                            return value + '%';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                // Passenger Satisfaction Gauge (Doughnut styled as gauge)
+                if (document.getElementById('passengerSatisfactionGauge')) {
+                    const satisfactionCtx = document.getElementById('passengerSatisfactionGauge').getContext('2d');
+                    
+                    // Create a doughnut chart that looks like a gauge
+                    const satisfactionValue = 87; // Current satisfaction percentage
+                    
+                    const satisfactionData = {
+                        labels: ['Satisfaction', 'Remaining'],
+                        datasets: [{
+                            data: [satisfactionValue, 100 - satisfactionValue],
+                            backgroundColor: [colors.low, 'rgba(200, 200, 200, 0.1)'],
+                            borderWidth: 0,
+                            circumference: 180,
+                            rotation: 270
+                        }]
+                    };
+
+                    // Create a LOCALIZED plugin only for this specific chart
+                    const gaugeTextPlugin = {
+                        id: 'gaugeTextLocal',
+                        afterDraw: function(chart) {
+                            const width = chart.width;
+                            const height = chart.height;
+                            const ctx = chart.ctx;
+                            
+                            ctx.restore();
+                            ctx.font = '700 24px sans-serif';
+                            ctx.fillStyle = colors.textColor;
+                            ctx.textBaseline = 'middle';
+                            ctx.textAlign = 'center';
+                            
+                            const text = satisfactionValue + '%';
+                            const textX = width / 2;
+                            const textY = height - 20;
+                            
+                            ctx.fillText(text, textX, textY);
+                            ctx.save();
+                        }
+                    };
+
+                    const satisfactionGauge = new Chart(satisfactionCtx, {
+                        type: 'doughnut',
+                        data: satisfactionData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            cutout: '75%',
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    enabled: false
+                                }
+                            },
+                            layout: {
+                                padding: {
+                                    bottom: 30
+                                }
+                            },
+                            plugins: [gaugeTextPlugin] // Apply plugin only to this chart
+                        }
+                    });
+                }
+                
+                // Security Incidents Chart (Bar)
+                if (document.getElementById('securityIncidentsChart')) {
+                    const securityCtx = document.getElementById('securityIncidentsChart').getContext('2d');
+                    const securityData = {
+                        labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+                        datasets: [
+                            {
+                                label: 'Current Year',
+                                data: [18, 12, 8, 7],
+                                backgroundColor: colors.low,
+                                borderWidth: 0,
+                                borderRadius: 4
+                            },
+                            {
+                                label: 'Previous Year',
+                                data: [25, 22, 19, 16],
+                                backgroundColor: colors.medium,
+                                borderWidth: 0,
+                                borderRadius: 4
+                            }
+                        ]
+                    };
+
+                    new Chart(securityCtx, {
+                        type: 'bar',
+                        data: securityData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                    labels: {
+                                        color: colors.textColor
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    grid: {
+                                        display: false
+                                    },
+                                    ticks: {
+                                        color: colors.textColor
+                                    }
+                                },
+                                y: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        color: colors.gridColor
+                                    },
+                                    ticks: {
+                                        color: colors.textColor
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                // Emergency Response Time Chart (Bar)
+                if (document.getElementById('responseTimeChart')) {
+                    const responseCtx = document.getElementById('responseTimeChart').getContext('2d');
+                    const responseData = {
+                        labels: ['Terminal 1', 'Terminal 2', 'Terminal 3', 'Cargo', 'Apron'],
+                        datasets: [
+                            {
+                                label: 'Current',
+                                data: [3.2, 2.8, 3.5, 4.1, 5.2],
+                                backgroundColor: colors.primary,
+                                borderWidth: 0,
+                                borderRadius: 4
+                            },
+                            {
+                                label: 'Target',
+                                data: [3.0, 3.0, 3.0, 4.0, 5.0],
+                                backgroundColor: colors.secondary,
+                                borderWidth: 0,
+                                borderRadius: 4
+                            }
+                        ]
+                    };
+
+                    new Chart(responseCtx, {
+                        type: 'bar',
+                        data: responseData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                    labels: {
+                                        color: colors.textColor
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    grid: {
+                                        display: false
+                                    },
+                                    ticks: {
+                                        color: colors.textColor
+                                    }
+                                },
+                                y: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        color: colors.gridColor
+                                    },
+                                    ticks: {
+                                        color: colors.textColor,
+                                        callback: function(value) {
+                                            return value + ' min';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        </script>
+    </div>
+
+
+</body></html>
